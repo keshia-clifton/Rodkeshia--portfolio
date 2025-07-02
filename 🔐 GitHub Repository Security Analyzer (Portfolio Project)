@@ -1,133 +1,90 @@
-github-security-analyzer/
-│
-├── analyzer.py
-├── utils.py
-├── report.md
-├── README.md
-├── requirements.txt
-└── .gitignore
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rodkeshia Clifton - Cybersecurity Portfolio</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 2rem;
-      line-height: 1.6;
-      background-color: #f4f4f9;
-      color: #333;
-    }
-    h1, h2 {
-      color: #2c3e50;
-    }
-    section {
-      background: #fff;
-      padding: 1.5rem;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-      margin-bottom: 2rem;
-    }
-    .contact {
-      font-weight: bold;
-    }
-    a {
-      color: #007acc;
-    }
-  </style>
-</head>
-<body>
-  <h1>Rodkeshia Clifton - Cybersecurity Portfolio</h1>
+import re
+import requests
+import sys
 
-  <section>
-    <h2>🔐 Project 1: Detecting Brute-Force Attacks Using Splunk</h2>
-    <p><strong>Objective:</strong> Set up and use Splunk to monitor Windows event logs and detect brute-force login attempts.</p>
-    <p><strong>Tools Used:</strong> Splunk, Windows 10 VM, Event Viewer</p>
-    <p><strong>Methodology:</strong></p>
-    <ul>
-      <li>Installed Splunk Enterprise in a local lab environment.</li>
-      <li>Configured a Windows 10 virtual machine to generate event logs.</li>
-      <li>Collected and filtered security logs using Splunk Universal Forwarder.</li>
-      <li>Queried Event ID 4625 for failed login attempts.</li>
-      <li>Created dashboards and alerts to visualize brute-force attack patterns.</li>
-    </ul>
-    <p><strong>Outcome:</strong> Improved SIEM skills and detection techniques.</p>
-  </section>
+SENSITIVE_PATTERNS = {
+    "AWS Access Key": r"AKIA[0-9A-Z]{16}",
+    "Slack Token": r"xox[baprs]-[0-9a-zA-Z]{10,48}",
+    "Private Key": r"-----BEGIN PRIVATE KEY-----"
+}
 
-  <section>
-    <h2>🛡️ Project 2: Vulnerability Assessment with Nessus</h2>
-    <p><strong>Objective:</strong> Identify vulnerabilities on a test system using Nessus and provide recommendations for remediation.</p>
-    <p><strong>Tools Used:</strong> Nessus Essentials, Kali Linux, Windows 10 VM</p>
-    <ul>
-      <li>Deployed Nessus to scan a Windows-based environment.</li>
-      <li>Reviewed identified vulnerabilities and their severity levels.</li>
-      <li>Interpreted CVSS scores and analyzed potential risks.</li>
-      <li>Documented vulnerabilities and proposed mitigation steps.</li>
-    </ul>
-    <p><strong>Outcome:</strong> Gained experience with vulnerability management tools.</p>
-  </section>
+SENSITIVE_FILES = ['.env', 'id_rsa', 'config.yml']
 
-  <section>
-    <h2>🤟 Project 3: TryHackMe Incident Response Simulation</h2>
-    <p><strong>Objective:</strong> Perform blue team activities in simulated threat environments and investigate security incidents.</p>
-    <p><strong>Tools Used:</strong> TryHackMe, Wireshark, Splunk, Windows Logs</p>
-    <ul>
-      <li>Completed "Blue Primer" and "Security Operations" rooms.</li>
-      <li>Analyzed logs to identify unauthorized activity and threats.</li>
-      <li>Used Wireshark to examine network packets and extract IOCs.</li>
-      <li>Documented findings and recommended response actions.</li>
-    </ul>
-    <p><strong>Outcome:</strong> Applied theoretical knowledge in simulated environments.</p>
-  </section>
+def fetch_repo_contents(repo_url):
+    if "github.com/" not in repo_url:
+        raise ValueError("Invalid GitHub URL.")
+    api_url = repo_url.replace("https://github.com", "https://api.github.com/repos")
+    contents_url = api_url + "/contents"
+    response = requests.get(contents_url)
+    response.raise_for_status()
+    return response.json()
 
-  <section>
-    <h2>🔧 Project 4: Linux System Hardening</h2>
-    <p><strong>Objective:</strong> Secure a Linux machine by applying hardening practices and auditing configurations.</p>
-    <p><strong>Tools Used:</strong> Ubuntu, SSH, UFW, Auditd</p>
-    <ul>
-      <li>Implemented secure SSH configurations and disabled root login.</li>
-      <li>Enabled UFW to manage firewall rules.</li>
-      <li>Installed and configured Auditd to track system activity.</li>
-      <li>Removed unnecessary services and applied updates.</li>
-    </ul>
-    <p><strong>Outcome:</strong> Improved knowledge of Linux system security.</p>
-  </section>
+def scan_for_secrets(file_content):
+    results = []
+    for key, pattern in SENSITIVE_PATTERNS.items():
+        if re.search(pattern, file_content):
+            results.append(f"Potential {key} found.")
+    return results
 
-  <section>
-    <h2>📄 Project 5: Cybersecurity Policy Development</h2>
-    <p><strong>Objective:</strong> Create a foundational security policy for a small business or home lab.</p>
-    <p><strong>Tools Used:</strong> MS Word, NIST SP 800-53, CIS Controls</p>
-    <ul>
-      <li>Reviewed NIST and CIS frameworks for best practices.</li>
-      <li>Drafted sections on access control, password policy, acceptable use, and incident handling.</li>
-      <li>Structured the document for professional readability and clarity.</li>
-    </ul>
-    <p><strong>Outcome:</strong> Demonstrated ability to translate frameworks into working policies.</p>
-  </section>
+def run_analysis(repo_url):
+    print(f"\n🔍 Scanning repository: {repo_url}")
+    results = []
+    try:
+        files = fetch_repo_contents(repo_url)
+        for file in files:
+            # Check if file is sensitive
+            if file['name'] in SENSITIVE_FILES:
+                results.append(f"⚠️ Sensitive file detected: {file['name']}")
 
-  <section>
-    <h2>📧 Contact Information</h2>
-    <p class="contact">Rodkeshia Clifton</p>
-    <p class="contact">Raleigh, NC</p>
-    <p class="contact">📧 <a href="mailto:keshia.clifton@gmail.com">keshia.clifton@gmail.com</a></p>
-    <p class="contact">📞 (919) 928-7510</p>
-    <p class="contact">🔗 <a href="https://linkedin.com/in/rodkeshiaclifton" target="_blank">LinkedIn</a></p>
-    <p class="contact">🌐 GitHub/Portfolio: <em>(Add your link here)</em></p>
-  </section>
+            # Download and scan the file content for secrets
+            if file['type'] == 'file' and file.get('download_url'):
+                file_resp = requests.get(file['download_url'])
+                secrets = scan_for_secrets(file_resp.text)
+                results.extend(secrets)
+
+    except Exception as e:
+        results.append(f"Error: {e}")
+
+    return results
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Usage: python analyzer.py <GitHub repo URL>")
+        sys.exit(1)
+    repo_url = sys.argv[1]
+    findings = run_analysis(repo_url)
+    if findings:
+        print("\n🔒 Security Findings:")
+        for item in findings:
+            print("- " + item)
+    else:
+        print("\n✅ No obvious security issues found.")
 requests
-# 🔐 GitHub Security Analysis Report
+__pycache__/
+*.pyc
+.env
+# GitHub Repository Security Analyzer
 
-**Repository:** https://github.com/example-user/example-repo
+A Python tool to analyze public GitHub repositories for basic security risks, such as exposed secrets and sensitive files.
 
-**Findings:**
-- ⚠️ Sensitive file detected: `.env`
+## Features
+
+- Detects exposed secrets like AWS keys and Slack tokens using regex.
+- Flags sensitive files (`.env`, `id_rsa`, etc.).
+- Scans repository files for potential security risks.
+- Outputs findings in the terminal.
+
+## Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/github-security-analyzer.git
+   cd github-security-analyzer
+pip install -r requirements.txt
+python analyzer.py https://github.com/username/repository
+🔍 Scanning repository: https://github.com/example-user/example-repo
+
+🔒 Security Findings:
+- ⚠️ Sensitive file detected: .env
 - Potential AWS Access Key found.
 - Potential Slack Token found.
-
-git clone https://github.com/yourusername/github-security-analyzer.git
-cd github-security-analyzer
-pip install -r requirements.txt
-python analyzer.py
