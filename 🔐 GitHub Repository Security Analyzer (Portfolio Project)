@@ -1,3 +1,11 @@
+github-security-analyzer/
+│
+├── analyzer.py
+├── utils.py
+├── report.md
+├── README.md
+├── requirements.txt
+└── .gitignore
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -109,3 +117,17 @@
     <p class="contact">🔗 <a href="https://linkedin.com/in/rodkeshiaclifton" target="_blank">LinkedIn</a></p>
     <p class="contact">🌐 GitHub/Portfolio: <em>(Add your link here)</em></p>
   </section>
+requests
+# 🔐 GitHub Security Analysis Report
+
+**Repository:** https://github.com/example-user/example-repo
+
+**Findings:**
+- ⚠️ Sensitive file detected: `.env`
+- Potential AWS Access Key found.
+- Potential Slack Token found.
+
+git clone https://github.com/yourusername/github-security-analyzer.git
+cd github-security-analyzer
+pip install -r requirements.txt
+python analyzer.py
